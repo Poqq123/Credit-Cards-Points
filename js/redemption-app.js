@@ -3,14 +3,31 @@ import {
   CARD_PROGRAMS_BY_ID,
   formatRatio,
   getModeData,
+  getLocalizedDestinationName,
+  getLocalizedGroupName,
+  getLocalizedText,
   isValueDestination,
 } from './data.js';
+import {
+  bindLanguageToggle,
+  getLanguage,
+  onLanguageChange,
+  setDocumentMeta,
+  t,
+} from './i18n.js';
 
+const backLink = document.getElementById('back-link');
+const pageTitle = document.getElementById('page-title');
+const pageSubtitle = document.getElementById('page-subtitle');
+const portalSectionTitle = document.getElementById('portal-section-title');
+const pickerSectionTitle = document.getElementById('picker-section-title');
 const portalWrap = document.getElementById('portalTableWrap');
 const destinationGrid = document.getElementById('destGrid');
 const resultPanel = document.getElementById('resultPanel');
+const footer = document.getElementById('page-footer');
 
 const state = {
+  language: getLanguage(),
   mode: 'airlines',
   selectedDestinationId: null,
 };
@@ -32,12 +49,12 @@ function renderPortalTable() {
 
   let html = `<table class="portal-table">
     <thead><tr>
-      <th>积分计划</th><th>年费</th>
-      <th>Portal 机票<br><span style="font-weight:400">CPP</span></th>
-      <th>Portal 酒店<br><span style="font-weight:400">CPP</span></th>
-      <th>Portal Earn Rate</th>
-      <th>直连有效回报率</th>
-      <th>Portal 有效回报率</th>
+      <th>${t('portalProgram')}</th><th>${t('annualFee')}</th>
+      <th>${t('portalFlights')}<br><span style="font-weight:400">CPP</span></th>
+      <th>${t('portalHotels')}<br><span style="font-weight:400">CPP</span></th>
+      <th>${t('portalEarnRate')}</th>
+      <th>${t('directReturn')}</th>
+      <th>${t('portalReturn')}</th>
     </tr></thead><tbody>`;
 
   CARD_PROGRAMS.forEach((card) => {
@@ -45,11 +62,14 @@ function renderPortalTable() {
     const hotelClass = card.portal.hotels === bestPortalHotel ? 'cpp-best' : '';
 
     html += `<tr>
-      <td><span class="card-dot-sm" style="background:${card.color}"></span>${card.displayName}</td>
+      <td><span class="card-dot-sm" style="background:${card.color}"></span>${getLocalizedText(card.displayName, state.language)}</td>
       <td style="color:var(--dim);font-size:12px">${card.fee}</td>
       <td><span class="cpp-val ${flightClass}">${card.portal.flights !== null ? `${card.portal.flights}¢` : '<span class="cpp-na">—</span>'}</span></td>
       <td><span class="cpp-val ${hotelClass}">${card.portal.hotels !== null ? `${card.portal.hotels}¢` : '<span class="cpp-na">—</span>'}</span></td>
-      <td style="font-size:11px;color:var(--dim)">${card.earn.portalFlights} 机票 / ${card.earn.portalHotels} 酒店</td>
+      <td style="font-size:11px;color:var(--dim)">${t('earnSummary', {
+        flights: card.earn.portalFlights,
+        hotels: card.earn.portalHotels,
+      })}</td>
       <td style="font-size:12px">${card.effectiveReturn.direct}</td>
       <td style="font-size:12px;font-weight:500">${card.effectiveReturn.portal}</td>
     </tr>`;
@@ -68,14 +88,14 @@ function renderDestinationGrid() {
     const groupColor = getModeData(state.mode).groups[destination.group].color;
 
     if (destination.group !== lastGroup) {
-      html += `<div style="grid-column:1/-1;font-size:10px;color:${groupColor};font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:${lastGroup ? '8' : '0'}px">${destination.group}</div>`;
+      html += `<div style="grid-column:1/-1;font-size:10px;color:${groupColor};font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-top:${lastGroup ? '8' : '0'}px">${getLocalizedGroupName(state.mode, destination.group, state.language)}</div>`;
       lastGroup = destination.group;
     }
 
     const isSelected = state.selectedDestinationId === destination.id ? ' selected' : '';
     html += `<button class="dest-btn${isSelected}" data-id="${destination.id}">
       <span class="code" style="color:${groupColor}">${destination.id.replace('_H', '')}</span>
-      <span class="name">${destination.name}</span>
+      <span class="name">${getLocalizedDestinationName(destination, state.language)}</span>
     </button>`;
   });
 
@@ -92,7 +112,7 @@ function renderDestinationGrid() {
 
 function renderResult() {
   if (!state.selectedDestinationId) {
-    resultPanel.innerHTML = '<div class="result-empty">👆 选择一个航空公司或酒店，查看最佳转点方案</div>';
+    resultPanel.innerHTML = `<div class="result-empty">${t('pickPrompt')}</div>`;
     return;
   }
 
@@ -101,7 +121,7 @@ function renderResult() {
   const destination = destinations.find((item) => item.id === state.selectedDestinationId);
 
   if (!destination) {
-    resultPanel.innerHTML = '<div class="result-empty">当前目标暂无估值数据</div>';
+    resultPanel.innerHTML = `<div class="result-empty">${t('noValuation')}</div>`;
     return;
   }
 
@@ -129,11 +149,15 @@ function renderResult() {
 
   const bestOption = options[0] ?? null;
 
-  let html = `<div class="result-title" style="color:${modeData.groups[destination.group].color}">${destination.name}</div>`;
-  html += `<div class="result-sub">${destination.group} · 里程/积分均价 ${destination.avgCpp}¢/pt · ${options.length} 个积分计划可转入</div>`;
+  let html = `<div class="result-title" style="color:${modeData.groups[destination.group].color}">${getLocalizedDestinationName(destination, state.language)}</div>`;
+  html += `<div class="result-sub">${t('resultSubtitle', {
+    group: getLocalizedGroupName(state.mode, destination.group, state.language),
+    avgCpp: destination.avgCpp,
+    count: options.length,
+  })}</div>`;
 
   if (!options.length) {
-    html += '<div style="color:#666;padding:20px 0">没有直接转点伙伴</div>';
+    html += `<div style="color:#666;padding:20px 0">${t('noPartners')}</div>`;
     resultPanel.innerHTML = html;
     return;
   }
@@ -141,28 +165,50 @@ function renderResult() {
   html += '<div class="transfer-cards">';
   options.forEach((option) => {
     const isBest = option === bestOption;
+    const pointsUnit = state.mode === 'airlines' ? t('unitMiles') : t('unitPoints');
 
     html += `<div class="transfer-card${isBest ? ' best' : ''}" style="border-color:${option.card.color}22">
-      ${isBest ? '<div class="badge">⭐ 推荐</div>' : ''}
-      <div class="card-name" style="color:${option.card.color}">${option.card.displayName}</div>
-      <div class="ratio">转点比例: <strong>${formatRatio(option.ratio)}</strong></div>
-      <div class="ratio">年费: ${option.card.fee}</div>
+      ${isBest ? `<div class="badge">${t('recommended')}</div>` : ''}
+      <div class="card-name" style="color:${option.card.color}">${getLocalizedText(option.card.displayName, state.language)}</div>
+      <div class="ratio">${t('transferRatio')}: <strong>${formatRatio(option.ratio)}</strong></div>
+      <div class="ratio">${t('annualFee')}: ${option.card.fee}</div>
       <div class="value-row">
         <div>
           <div class="value-big" style="color:${isBest ? '#10b981' : option.card.color}">${option.effectiveCpp.toFixed(1)}¢</div>
-          <div class="value-unit">有效 CPP</div>
+          <div class="value-unit">${t('effectiveCpp')}</div>
         </div>
         <div style="text-align:right">
           <div class="value-big" style="color:${isBest ? '#10b981' : '#ccc'}">$${option.valueFor100k}</div>
-          <div class="value-unit">100k 积分价值</div>
+          <div class="value-unit">${t('value100k')}</div>
         </div>
       </div>
-      <div class="value-calc">100k → ${(option.pointsAfterTransfer / 1000).toFixed(0)}k miles × ${destination.avgCpp}¢ = $${option.valueFor100k}</div>
+      <div class="value-calc">${t('valueCalc', {
+        points: (option.pointsAfterTransfer / 1000).toFixed(0),
+        unit: pointsUnit,
+        avgCpp: destination.avgCpp,
+        value: option.valueFor100k,
+      })}</div>
     </div>`;
   });
   html += '</div>';
 
   resultPanel.innerHTML = html;
+}
+
+function updateStaticCopy() {
+  setDocumentMeta({
+    title: t('redemptionDocTitle'),
+    description: t('redemptionMetaDescription'),
+  });
+
+  backLink.textContent = t('backToGraph');
+  pageTitle.textContent = t('redemptionHeaderTitle');
+  pageSubtitle.textContent = t('redemptionHeaderSubtitle');
+  portalSectionTitle.textContent = t('portalSectionTitle');
+  pickerSectionTitle.textContent = t('pickerSectionTitle');
+  document.querySelector('[data-pick="airlines"]').textContent = t('modeAirlines');
+  document.querySelector('[data-pick="hotels"]').textContent = t('modeHotels');
+  footer.innerHTML = `by <a href="https://github.com/1suponatime">1suponatime</a> · 2026.3 · <a href="index.html">${t('footerGraphLink')}</a> · <a href="references.html">${t('footerReferencesLink')}</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues">${t('footerIssuesLink')}</a>`;
 }
 
 document.querySelectorAll('.picker-tab').forEach((tab) => {
@@ -178,6 +224,19 @@ document.querySelectorAll('.picker-tab').forEach((tab) => {
   });
 });
 
+bindLanguageToggle();
+updateStaticCopy();
 renderPortalTable();
 renderDestinationGrid();
 renderResult();
+
+onLanguageChange(
+  (language) => {
+    state.language = language;
+    updateStaticCopy();
+    renderPortalTable();
+    renderDestinationGrid();
+    renderResult();
+  },
+  { immediate: false },
+);

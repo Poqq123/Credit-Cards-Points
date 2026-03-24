@@ -1,14 +1,16 @@
+const bilingual = (zh, en) => ({ 'zh-CN': zh, en });
+
 export const AIRLINE_GROUPS = {
-  'Star Alliance': { color: '#fbbf24' },
-  oneworld: { color: '#f87171' },
-  SkyTeam: { color: '#60a5fa' },
-  Independent: { color: '#a78bfa' },
+  'Star Alliance': { color: '#fbbf24', label: bilingual('星空联盟', 'Star Alliance') },
+  oneworld: { color: '#f87171', label: bilingual('寰宇一家', 'oneworld') },
+  SkyTeam: { color: '#60a5fa', label: bilingual('天合联盟', 'SkyTeam') },
+  Independent: { color: '#a78bfa', label: bilingual('独立航司', 'Independent') },
 };
 
 export const HOTEL_GROUPS = {
-  Luxury: { color: '#fbbf24' },
-  'Mid-Scale': { color: '#60a5fa' },
-  Economy: { color: '#a78bfa' },
+  Luxury: { color: '#fbbf24', label: bilingual('豪华酒店', 'Luxury') },
+  'Mid-Scale': { color: '#60a5fa', label: bilingual('中端酒店', 'Mid-Scale') },
+  Economy: { color: '#a78bfa', label: bilingual('经济酒店', 'Economy') },
 };
 
 export const PRIMARY_REF = 'https://www.uscreditcardguide.com/wings-of-the-points/';
@@ -143,43 +145,43 @@ export const CARD_PROGRAMS = [
 ];
 
 export const AIRLINES = [
-  { id: 'AC', name: 'Air Canada (Aeroplan)', code: 'AC', group: 'Star Alliance', avgCpp: 1.5 },
-  { id: 'NH', name: 'ANA (全日空)', code: 'NH', group: 'Star Alliance', avgCpp: 1.5 },
-  { id: 'OZ', name: 'Asiana Airlines', code: 'OZ', group: 'Star Alliance', avgCpp: null },
-  { id: 'AV', name: 'Avianca (LifeMiles)', code: 'AV', group: 'Star Alliance', avgCpp: 1.3 },
-  { id: 'BR', name: 'EVA Air (长荣)', code: 'BR', group: 'Star Alliance', avgCpp: 1.2 },
-  { id: 'LH', name: 'Lufthansa (M&M)', code: 'LH', group: 'Star Alliance', avgCpp: null },
-  { id: 'SQ', name: 'Singapore (新航)', code: 'SQ', group: 'Star Alliance', avgCpp: 1.4 },
-  { id: 'TK', name: 'Turkish (土航)', code: 'TK', group: 'Star Alliance', avgCpp: 1.4 },
-  { id: 'UA', name: 'United (美联航)', code: 'UA', group: 'Star Alliance', avgCpp: 1.2 },
-  { id: 'AA', name: 'American (AA)', code: 'AA', group: 'oneworld', avgCpp: 1.4 },
-  { id: 'BA', name: 'British Airways', code: 'BA', group: 'oneworld', avgCpp: 1.2 },
-  { id: 'CX', name: 'Cathay Pacific (国泰)', code: 'CX', group: 'oneworld', avgCpp: 1.3 },
-  { id: 'IB', name: 'Iberia', code: 'IB', group: 'oneworld', avgCpp: 1.3 },
-  { id: 'JL', name: 'Japan Airlines (日航)', code: 'JL', group: 'oneworld', avgCpp: 1.3 },
-  { id: 'MH', name: 'Malaysia (马航)', code: 'MH', group: 'oneworld', avgCpp: null },
-  { id: 'QF', name: 'Qantas (澳航)', code: 'QF', group: 'oneworld', avgCpp: 1.1 },
-  { id: 'QR', name: 'Qatar (卡航)', code: 'QR', group: 'oneworld', avgCpp: 1.4 },
-  { id: 'AM', name: 'Aeromexico', code: 'AM', group: 'SkyTeam', avgCpp: null },
-  { id: 'AF', name: 'Air France/KLM (FB)', code: 'AF', group: 'SkyTeam', avgCpp: 1.2 },
-  { id: 'DL', name: 'Delta (达美)', code: 'DL', group: 'SkyTeam', avgCpp: 1.2 },
-  { id: 'KE', name: 'Korean Air (大韩)', code: 'KE', group: 'SkyTeam', avgCpp: null },
-  { id: 'VS', name: 'Virgin Atlantic', code: 'VS', group: 'SkyTeam', avgCpp: 1.3 },
-  { id: 'EK', name: 'Emirates (阿联酋)', code: 'EK', group: 'Independent', avgCpp: 1.0 },
-  { id: 'EY', name: 'Etihad', code: 'EY', group: 'Independent', avgCpp: 1.2 },
-  { id: 'HA', name: 'Hawaiian', code: 'HA', group: 'Independent', avgCpp: null },
-  { id: 'B6', name: 'JetBlue', code: 'B6', group: 'Independent', avgCpp: null },
-  { id: 'WN', name: 'Southwest (西南)', code: 'WN', group: 'Independent', avgCpp: null },
+  { id: 'AC', name: bilingual('加拿大航空 (Aeroplan)', 'Air Canada (Aeroplan)'), code: 'AC', group: 'Star Alliance', avgCpp: 1.5 },
+  { id: 'NH', name: bilingual('全日空 ANA', 'ANA'), code: 'NH', group: 'Star Alliance', avgCpp: 1.5 },
+  { id: 'OZ', name: bilingual('韩亚航空', 'Asiana Airlines'), code: 'OZ', group: 'Star Alliance', avgCpp: null },
+  { id: 'AV', name: bilingual('Avianca (LifeMiles)', 'Avianca (LifeMiles)'), code: 'AV', group: 'Star Alliance', avgCpp: 1.3 },
+  { id: 'BR', name: bilingual('长荣航空', 'EVA Air'), code: 'BR', group: 'Star Alliance', avgCpp: 1.2 },
+  { id: 'LH', name: bilingual('汉莎航空 (Miles & More)', 'Lufthansa (Miles & More)'), code: 'LH', group: 'Star Alliance', avgCpp: null },
+  { id: 'SQ', name: bilingual('新加坡航空', 'Singapore Airlines'), code: 'SQ', group: 'Star Alliance', avgCpp: 1.4 },
+  { id: 'TK', name: bilingual('土耳其航空', 'Turkish Airlines'), code: 'TK', group: 'Star Alliance', avgCpp: 1.4 },
+  { id: 'UA', name: bilingual('美联航', 'United Airlines'), code: 'UA', group: 'Star Alliance', avgCpp: 1.2 },
+  { id: 'AA', name: bilingual('美国航空', 'American Airlines'), code: 'AA', group: 'oneworld', avgCpp: 1.4 },
+  { id: 'BA', name: bilingual('英国航空', 'British Airways'), code: 'BA', group: 'oneworld', avgCpp: 1.2 },
+  { id: 'CX', name: bilingual('国泰航空', 'Cathay Pacific'), code: 'CX', group: 'oneworld', avgCpp: 1.3 },
+  { id: 'IB', name: bilingual('西班牙航空', 'Iberia'), code: 'IB', group: 'oneworld', avgCpp: 1.3 },
+  { id: 'JL', name: bilingual('日本航空', 'Japan Airlines'), code: 'JL', group: 'oneworld', avgCpp: 1.3 },
+  { id: 'MH', name: bilingual('马来西亚航空', 'Malaysia Airlines'), code: 'MH', group: 'oneworld', avgCpp: null },
+  { id: 'QF', name: bilingual('澳洲航空', 'Qantas'), code: 'QF', group: 'oneworld', avgCpp: 1.1 },
+  { id: 'QR', name: bilingual('卡塔尔航空', 'Qatar Airways'), code: 'QR', group: 'oneworld', avgCpp: 1.4 },
+  { id: 'AM', name: bilingual('墨西哥航空', 'Aeromexico'), code: 'AM', group: 'SkyTeam', avgCpp: null },
+  { id: 'AF', name: bilingual('法航/荷航 (Flying Blue)', 'Air France/KLM (Flying Blue)'), code: 'AF', group: 'SkyTeam', avgCpp: 1.2 },
+  { id: 'DL', name: bilingual('达美航空', 'Delta Air Lines'), code: 'DL', group: 'SkyTeam', avgCpp: 1.2 },
+  { id: 'KE', name: bilingual('大韩航空', 'Korean Air'), code: 'KE', group: 'SkyTeam', avgCpp: null },
+  { id: 'VS', name: bilingual('维珍大西洋', 'Virgin Atlantic'), code: 'VS', group: 'SkyTeam', avgCpp: 1.3 },
+  { id: 'EK', name: bilingual('阿联酋航空', 'Emirates'), code: 'EK', group: 'Independent', avgCpp: 1.0 },
+  { id: 'EY', name: bilingual('阿提哈德航空', 'Etihad Airways'), code: 'EY', group: 'Independent', avgCpp: 1.2 },
+  { id: 'HA', name: bilingual('夏威夷航空', 'Hawaiian Airlines'), code: 'HA', group: 'Independent', avgCpp: null },
+  { id: 'B6', name: bilingual('捷蓝航空', 'JetBlue'), code: 'B6', group: 'Independent', avgCpp: null },
+  { id: 'WN', name: bilingual('西南航空', 'Southwest Airlines'), code: 'WN', group: 'Independent', avgCpp: null },
 ];
 
 export const HOTELS = [
-  { id: 'HY', name: 'World of Hyatt (凯悦)', code: 'HY', group: 'Luxury', avgCpp: 2.0 },
-  { id: 'MB_H', name: 'Marriott Bonvoy (万豪)', code: 'MB', group: 'Luxury', avgCpp: 0.8 },
-  { id: 'HH', name: 'Hilton Honors (希尔顿)', code: 'HH', group: 'Mid-Scale', avgCpp: 0.5 },
-  { id: 'IHG', name: 'IHG One Rewards (洲际)', code: 'IHG', group: 'Mid-Scale', avgCpp: 0.5 },
-  { id: 'WY', name: 'Wyndham Rewards (温德姆)', code: 'WY', group: 'Economy', avgCpp: 1.1 },
-  { id: 'CH', name: 'Choice Privileges', code: 'CH', group: 'Economy', avgCpp: 0.6 },
-  { id: 'AL', name: 'Accor Live Limitless (雅高)', code: 'AL', group: 'Luxury', avgCpp: 0.8 },
+  { id: 'HY', name: bilingual('凯悦天地', 'World of Hyatt'), code: 'HY', group: 'Luxury', avgCpp: 2.0 },
+  { id: 'MB_H', name: bilingual('万豪旅享家', 'Marriott Bonvoy'), code: 'MB', group: 'Luxury', avgCpp: 0.8 },
+  { id: 'HH', name: bilingual('希尔顿荣誉客会', 'Hilton Honors'), code: 'HH', group: 'Mid-Scale', avgCpp: 0.5 },
+  { id: 'IHG', name: bilingual('IHG 优悦会', 'IHG One Rewards'), code: 'IHG', group: 'Mid-Scale', avgCpp: 0.5 },
+  { id: 'WY', name: bilingual('温德姆奖赏计划', 'Wyndham Rewards'), code: 'WY', group: 'Economy', avgCpp: 1.1 },
+  { id: 'CH', name: bilingual('Choice Privileges', 'Choice Privileges'), code: 'CH', group: 'Economy', avgCpp: 0.6 },
+  { id: 'AL', name: bilingual('雅高心悦界', 'Accor Live Limitless'), code: 'AL', group: 'Luxury', avgCpp: 0.8 },
 ];
 
 export const AIRLINE_TRANSFERS = [
@@ -218,13 +220,13 @@ export const GROUPS_BY_MODE = {
 
 export const MODE_META = {
   airlines: {
-    destLabel: '航空公司',
-    groupLabel: '联盟',
+    destLabel: bilingual('航空公司', 'Airlines'),
+    groupLabel: bilingual('联盟', 'Alliance'),
     groupOrder: ['Star Alliance', 'oneworld', 'SkyTeam', 'Independent'],
   },
   hotels: {
-    destLabel: '酒店',
-    groupLabel: '酒店集团',
+    destLabel: bilingual('酒店', 'Hotels'),
+    groupLabel: bilingual('酒店集团', 'Hotel Groups'),
     groupOrder: ['Luxury', 'Mid-Scale', 'Economy'],
   },
 };
@@ -236,6 +238,26 @@ export function getModeData(mode) {
     groups: GROUPS_BY_MODE[mode] ?? {},
     ...MODE_META[mode],
   };
+}
+
+export function getLocalizedText(value, language = 'zh-CN') {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return String(value);
+  }
+
+  if (!value || typeof value !== 'object') {
+    return '';
+  }
+
+  return value[language] ?? value.en ?? value['zh-CN'] ?? '';
+}
+
+export function getLocalizedDestinationName(destination, language = 'zh-CN') {
+  return getLocalizedText(destination?.name, language);
+}
+
+export function getLocalizedGroupName(mode, group, language = 'zh-CN') {
+  return getLocalizedText(GROUPS_BY_MODE[mode]?.[group]?.label ?? group, language);
 }
 
 export function dedupeTransfers(transfers) {

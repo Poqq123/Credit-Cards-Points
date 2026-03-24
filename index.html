@@ -61,6 +61,13 @@
       -webkit-text-fill-color: transparent;
     }
 
+    #title-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
     #title-bar p {
       font-size: 13px;
       color: #aaa;
@@ -79,6 +86,41 @@
 
     #title-bar a:hover {
       background: rgba(167, 139, 250, 0.2);
+    }
+
+    .language-toggle {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      background: rgba(20, 20, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      pointer-events: auto;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border: none;
+      background: none;
+      color: #666;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-btn:hover {
+      color: #ccc;
+    }
+
+    .lang-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     /* Mode Toggle */
@@ -305,9 +347,12 @@
     @media (max-width: 640px) {
       /* Title bar — compact, links wrap to next line */
       #title-bar { padding: 6px 10px; }
+      #title-top { gap: 10px; }
       #title-bar h1 { font-size: 13px; }
       #title-bar p { font-size: 10px; line-height: 2; }
       #title-bar a { padding: 2px 6px; font-size: 10px; display: inline-block; margin-top: 2px; }
+      .language-toggle { padding: 2px; }
+      .lang-btn { padding: 5px 9px; font-size: 10px; }
 
       /* Legend — vertical inside title bar */
       #legend { flex-direction: column; gap: 3px; padding: 4px 10px; font-size: 10px; margin-top: 4px; }
@@ -334,8 +379,16 @@
   <div id="canvas-container"></div>
 
   <div id="title-bar">
-    <h1>💳 Credit Card Transfer Partners</h1>
-    <p>by <a href="https://github.com/Poqq123" style="color:#a78bfa">Poqq123</a> · 2026.3<br><a href="redemption-value.html">💎 兑换价值</a> · <a href="references.html">📚 数据来源</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues/new">🐛 报错</a></p>
+    <div id="title-top">
+      <div>
+        <h1 id="page-title">💳 信用卡转点伙伴图谱</h1>
+        <p id="page-subtitle">by <a href="https://github.com/Poqq123" style="color:#a78bfa">Poqq123</a> · 2026.3<br><a href="redemption-value.html">💎 兑换价值</a> · <a href="references.html">📚 数据来源</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues/new">🐛 报错</a></p>
+      </div>
+      <div class="language-toggle" aria-label="Language switch">
+        <button class="lang-btn active" data-language-option="zh-CN" aria-pressed="true">中文</button>
+        <button class="lang-btn" data-language-option="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
     <div id="legend"></div>
   </div>
 
@@ -350,10 +403,10 @@
 
   <div id="info-panel">
     <h3 id="panel-title">📊 概览</h3>
-    <div class="stat"><span class="stat-label">积分计划</span><span class="stat-value" id="stat-cards">—</span></div>
+    <div class="stat"><span class="stat-label" id="stat-cards-label">积分计划</span><span class="stat-value" id="stat-cards">—</span></div>
     <div class="stat"><span class="stat-label" id="stat-dest-label">目标</span><span class="stat-value"
         id="stat-dest">—</span></div>
-    <div class="stat"><span class="stat-label">转点关系</span><span class="stat-value" id="stat-edges">—</span></div>
+    <div class="stat"><span class="stat-label" id="stat-edges-label">转点关系</span><span class="stat-value" id="stat-edges">—</span></div>
     <div class="stat"><span class="stat-label" id="stat-group-label">分组</span><span class="stat-value"
         id="stat-groups">—</span></div>
   </div>

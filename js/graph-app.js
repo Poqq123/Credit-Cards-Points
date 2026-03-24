@@ -6,25 +6,42 @@ import {
   dedupeTransfers,
   formatRatio,
   getModeData,
+  getLocalizedDestinationName,
+  getLocalizedGroupName,
+  getLocalizedText,
 } from './data.js';
+import {
+  bindLanguageToggle,
+  getLanguage,
+  onLanguageChange,
+  setDocumentMeta,
+  t,
+} from './i18n.js';
 
 const refs = {
   container: document.getElementById('canvas-container'),
   tooltip: document.getElementById('tooltip'),
   legend: document.getElementById('legend'),
   titleBar: document.getElementById('title-bar'),
+  pageTitle: document.getElementById('page-title'),
+  pageSubtitle: document.getElementById('page-subtitle'),
   statCards: document.getElementById('stat-cards'),
+  statCardsLabel: document.getElementById('stat-cards-label'),
   statDestLabel: document.getElementById('stat-dest-label'),
   statDest: document.getElementById('stat-dest'),
   statEdges: document.getElementById('stat-edges'),
+  statEdgesLabel: document.getElementById('stat-edges-label'),
   statGroupLabel: document.getElementById('stat-group-label'),
   statGroups: document.getElementById('stat-groups'),
+  controlsHint: document.getElementById('controls-hint'),
+  panelTitle: document.getElementById('panel-title'),
 };
 
 const scene = new THREE.Scene();
 const state = {
   width: window.innerWidth,
   height: window.innerHeight,
+  language: getLanguage(),
   currentMode: 'airlines',
   currentTransfers: [],
   currentDestinations: [],
@@ -213,6 +230,23 @@ function resetLegendSelection() {
   });
 }
 
+function updateStaticCopy() {
+  setDocumentMeta({
+    title: t('graphDocTitle'),
+    description: t('graphMetaDescription'),
+  });
+
+  refs.pageTitle.textContent = t('graphHeaderTitle');
+  refs.pageSubtitle.innerHTML = t('graphHeaderSubtitle');
+  refs.controlsHint.innerHTML = t('controlsHint');
+  refs.panelTitle.textContent = t('overviewTitle');
+  refs.statCardsLabel.textContent = t('cardPrograms');
+  refs.statEdgesLabel.textContent = t('transferRelationships');
+
+  document.querySelector('[data-mode="airlines"]').textContent = t('modeAirlines');
+  document.querySelector('[data-mode="hotels"]').textContent = t('modeHotels');
+}
+
 function buildGraph(mode) {
   clearScene();
   state.currentMode = mode;
@@ -325,7 +359,9 @@ function buildGraph(mode) {
     nodeGroup.add(glow);
     state.glowMeshes[destination.id] = glow;
 
-    const labelText = mobile ? destination.code : `${destination.code}  ${destination.name}`;
+    const labelText = mobile
+      ? destination.code
+      : `${destination.code}  ${getLocalizedDestinationName(destination, state.language)}`;
     const { texture, width, height } = createTextTexture(
       labelText,
       destinationFontSize,
@@ -344,7 +380,7 @@ function buildGraph(mode) {
       const groupInfo = modeData.groups[destination.group];
       const groupLabelSize = mobile ? 7 : 10;
       const { texture: groupTexture, width: groupWidth, height: groupHeight } = createTextTexture(
-        destination.group,
+        getLocalizedGroupName(mode, destination.group, state.language),
         groupLabelSize,
         groupInfo.color,
         '600',
@@ -436,15 +472,15 @@ function buildGraph(mode) {
   scene.add(state.particleSystem);
 
   refs.statCards.textContent = cards.length;
-  refs.statDestLabel.textContent = modeData.destLabel;
+  refs.statDestLabel.textContent = getLocalizedText(modeData.destLabel, state.language);
   refs.statDest.textContent = sortedDestinations.length;
   refs.statEdges.textContent = state.currentTransfers.length;
-  refs.statGroupLabel.textContent = modeData.groupLabel;
+  refs.statGroupLabel.textContent = getLocalizedText(modeData.groupLabel, state.language);
   refs.statGroups.textContent = Object.keys(modeData.groups).length;
 
   refs.legend.innerHTML = '';
   Object.entries(modeData.groups).forEach(([name, info]) => {
-    refs.legend.innerHTML += `<div class="legend-item clickable" data-group="${name}"><div class="legend-dot" style="background:${info.color}"></div>${name}</div>`;
+    refs.legend.innerHTML += `<div class="legend-item clickable" data-group="${name}"><div class="legend-dot" style="background:${info.color}"></div>${getLocalizedText(info.label, state.language)}</div>`;
   });
 
   document.querySelectorAll('.legend-item.clickable').forEach((element) => {
@@ -576,8 +612,11 @@ function showTooltip(nodeId, clientX, clientY) {
   let html = '';
 
   if (node.type === 'card') {
-    html += `<div class="tt-title" style="color:${node.data.color}">${node.data.fullName}</div>`;
-    html += `<div class="tt-sub">转点至 ${connected.length} 个${state.currentMode === 'airlines' ? '航空公司' : '酒店'}</div>`;
+    html += `<div class="tt-title" style="color:${node.data.color}">${getLocalizedText(node.data.fullName, state.language)}</div>`;
+    html += `<div class="tt-sub">${t('tooltipCardSub', {
+      count: connected.length,
+      mode: t(state.currentMode === 'airlines' ? 'airlinesNoun' : 'hotelsNoun'),
+    })}</div>`;
     html += '<div class="tt-partners">';
 
     connected.forEach((connection) => {
@@ -594,8 +633,11 @@ function showTooltip(nodeId, clientX, clientY) {
   } else {
     const destination = node.data;
     const groupColor = state.currentGroups[destination.group]?.color ?? '#888';
-    html += `<div class="tt-title" style="color:${groupColor}">${destination.name}</div>`;
-    html += `<div class="tt-sub">${destination.group} · ${connected.length} 个积分计划可转入</div>`;
+    html += `<div class="tt-title" style="color:${groupColor}">${getLocalizedDestinationName(destination, state.language)}</div>`;
+    html += `<div class="tt-sub">${t('tooltipDestSub', {
+      group: getLocalizedGroupName(state.currentMode, destination.group, state.language),
+      count: connected.length,
+    })}</div>`;
     html += '<div class="tt-partners">';
 
     connected.forEach((connection) => {
@@ -924,6 +966,17 @@ function animate() {
 buildGraph('airlines');
 updateCamera();
 animate();
+
+bindLanguageToggle();
+updateStaticCopy();
+onLanguageChange(
+  (language) => {
+    state.language = language;
+    updateStaticCopy();
+    buildGraph(state.currentMode);
+  },
+  { immediate: false },
+);
 
 setTimeout(() => refs.titleBar.classList.add('faded'), 3000);
 refs.titleBar.addEventListener('mouseenter', () => refs.titleBar.classList.remove('faded'));
