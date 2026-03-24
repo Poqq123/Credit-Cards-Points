@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据来源 — References</title>
+  <link rel="icon" href="data:,">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    :root { --bg: #0a0a1a; --surface: rgba(18,18,38,0.9); --border: rgba(255,255,255,0.06); --dim: #666; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: #e0e0e0; font-family: 'Inter', sans-serif; min-height: 100vh; line-height: 1.7; }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(ellipse at 30% 40%, rgba(59,130,246,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(167,139,250,0.04) 0%, transparent 50%);
+    }
+    .container { max-width: 860px; margin: 0 auto; padding: 28px 24px 80px; }
+    .nav-link {
+      display: inline-flex; gap: 6px; margin-bottom: 24px; padding: 5px 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; color: #888; text-decoration: none; font-size: 11px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: #ccc; }
+    header { margin-bottom: 36px; }
+    header h1 {
+      font-size: 22px; font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header p { font-size: 13px; color: var(--dim); margin-top: 4px; }
+
+    h2 { font-size: 16px; font-weight: 600; margin: 32px 0 12px; color: #a78bfa; }
+    h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; }
+
+    .ref-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+    }
+    .ref-item {
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+      display: flex; gap: 12px; align-items: flex-start; font-size: 13px;
+    }
+    .ref-item:last-child { border-bottom: none; }
+    .ref-num {
+      flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+      background: rgba(167,139,250,0.1); color: #a78bfa;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600;
+    }
+    .ref-content { flex: 1; }
+    .ref-title { font-weight: 500; margin-bottom: 2px; }
+    .ref-url { font-size: 11px; color: #60a5fa; word-break: break-all; }
+    .ref-url a { color: #60a5fa; text-decoration: none; }
+    .ref-url a:hover { text-decoration: underline; }
+    .ref-note { font-size: 11px; color: var(--dim); margin-top: 2px; }
+    .ref-tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+    .ref-tag {
+      padding: 1px 8px; border-radius: 4px; font-size: 10px; font-weight: 500;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .card-color { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.03); }
+    th { color: var(--dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .update-log { font-size: 12px; color: var(--dim); }
+    .update-log li { margin-bottom: 6px; }
+    .update-log .date { color: #a78bfa; font-weight: 500; }
+
+    footer { text-align: center; padding: 28px 0; font-size: 11px; color: #333; border-top: 1px solid var(--border); }
+    footer a { color: #555; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="nav-link">← 返回转点二分图</a>
+
+    <header>
+      <h1>📚 数据来源 & References</h1>
+      <p>本项目中所有转点比例、CPP 估值、Portal 兑换值的数据来源</p>
+    </header>
+
+    <!-- Primary sources -->
+    <h2>📋 核心数据源</h2>
+    <div class="ref-section">
+      <div class="ref-item">
+        <div class="ref-num">1</div>
+        <div class="ref-content">
+          <div class="ref-title">US Credit Card Guide — 积分点数之翼 (Wings of the Points)</div>
+          <div class="ref-url"><a href="https://www.uscreditcardguide.com/wings-of-the-points/" target="_blank">uscreditcardguide.com/wings-of-the-points/</a></div>
+          <div class="ref-note">更新至 2026.3 · 本项目的主要数据来源，涵盖所有信用卡积分转点航空/酒店比例</div>
+          <div class="ref-tags">
+            <span class="ref-tag"><span class="card-color" style="background:#3b82f6"></span>UR</span>
+            <span class="ref-tag"><span class="card-color" style="background:#10b981"></span>MR</span>
+            <span class="ref-tag"><span class="card-color" style="background:#6366f1"></span>TYP</span>
+            <span class="ref-tag"><span class="card-color" style="background:#ef4444"></span>C1</span>
+            <span class="ref-tag"><span class="card-color" style="background:#f59e0b"></span>Bilt</span>
+            <span class="ref-tag"><span class="card-color" style="background:#ec4899"></span>Marriott</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ref-item">
+        <div class="ref-num">2</div>
+        <div class="ref-content">
+          <div class="ref-title">US Credit Card Guide — 转点优惠汇总</div>
+          <div class="ref-url"><a href="https://www.uscreditcardguide.com/transfer-bonus/" target="_blank">uscreditcardguide.com/transfer-bonus/</a></div>
+          <div class="ref-note">追踪所有转点 bonus 活动（如 TYP→VS 30% bonus）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official card issuer pages -->
+    <h2>🏦 官方页面 — 各银行/发卡行</h2>
+    <div class="ref-section">
+      <div class="ref-item">
+        <div class="ref-num">3</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#3b82f6"></span>Chase — Ultimate Rewards Transfer Partners</div>
+          <div class="ref-url"><a href="https://ultimaterewardspoints.chase.com/transfer-partners" target="_blank">ultimaterewardspoints.chase.com/transfer-partners</a></div>
+          <div class="ref-note">官方转点页面 · 航空: AC, BA, AF, IB, SQ, UA, VS, B6, WN, BR, EK · 酒店: Hyatt, IHG, Marriott, Wyndham</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">4</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#10b981"></span>Amex — Membership Rewards Transfer Partners</div>
+          <div class="ref-url"><a href="https://global.americanexpress.com/rewards/transfer" target="_blank">global.americanexpress.com/rewards/transfer</a></div>
+          <div class="ref-note">官方转点页面 · 需登录后查看 · 航空: AC, NH(1:0.5), AV, BA, CX(1:0.8), DL, EK, EY, AF, HA, IB, SQ, VS, QF · 酒店: Hilton(1:2), Marriott, Choice</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">5</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#6366f1"></span>Citi — ThankYou Rewards Transfer Partners</div>
+          <div class="ref-url"><a href="https://www.thankyou.com/redeem/transfer-partners" target="_blank">thankyou.com/redeem/transfer-partners</a></div>
+          <div class="ref-note">官方转点页面 · 航空: AC, AV, CX, EK, EY, BR, AF, B6, MH, QF, QR, SQ, TK, VS · 酒店: Wyndham, Choice, Accor</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">6</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#ef4444"></span>Capital One — Miles Transfer Partners</div>
+          <div class="ref-url"><a href="https://www.capitalone.com/credit-cards/benefits/transfer-miles/" target="_blank">capitalone.com/credit-cards/benefits/transfer-miles/</a></div>
+          <div class="ref-note">官方转点页面 · 航空: AC, AV, BA, CX, EK, EY, BR, AF, IB, JL(1:0.75), QR, SQ, TK, VS · 酒店: Wyndham, Choice, Accor</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">7</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#f59e0b"></span>Bilt — Rewards Transfer Partners</div>
+          <div class="ref-url"><a href="https://www.biltrewards.com/transfer-partners" target="_blank">biltrewards.com/transfer-partners</a></div>
+          <div class="ref-note">官方转点页面 · 航空: AA, AC, AF, BA, CX, EK, IB, TK, UA, VS, QR · 酒店: Hyatt, Hilton, IHG, Marriott, Accor</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">8</div>
+        <div class="ref-content">
+          <div class="ref-title"><span class="card-color" style="background:#ec4899"></span>Marriott — Bonvoy Points-to-Miles</div>
+          <div class="ref-url"><a href="https://www.marriott.com/loyalty/redeem/travel/airlines.mi" target="_blank">marriott.com/loyalty/redeem/travel/airlines.mi</a></div>
+          <div class="ref-note">官方转航司页面 · 3:1 基础比例 · 60k 转赠送额外 5k miles (= 3:1.25)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPP valuation sources -->
+    <h2>💰 CPP 估值来源</h2>
+    <div class="ref-section">
+      <div class="ref-item">
+        <div class="ref-num">9</div>
+        <div class="ref-content">
+          <div class="ref-title">The Points Guy — Monthly Points Valuations</div>
+          <div class="ref-url"><a href="https://thepointsguy.com/guide/monthly-valuations/" target="_blank">thepointsguy.com/guide/monthly-valuations/</a></div>
+          <div class="ref-note">TPG 每月更新各积分/里程估值 · Bilt 2.2¢、UR 2.0¢、MR 2.0¢</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">10</div>
+        <div class="ref-content">
+          <div class="ref-title">NerdWallet — Points & Miles Valuations</div>
+          <div class="ref-url"><a href="https://www.nerdwallet.com/article/travel/airline-miles-and-hotel-points-valuations" target="_blank">nerdwallet.com/article/travel/airline-miles-and-hotel-points-valuations</a></div>
+          <div class="ref-note">NerdWallet 独立估值 · 通常比 TPG 保守</div>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-num">11</div>
+        <div class="ref-content">
+          <div class="ref-title">Frequent Miler — Reasonable Redemption Values</div>
+          <div class="ref-url"><a href="https://frequentmiler.com/reasonable-redemption-values/" target="_blank">frequentmiler.com/reasonable-redemption-values/</a></div>
+          <div class="ref-note">基于实际兑换案例的中位数估值 · 数据方法论最透明</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key ratio reference table -->
+    <h2>📊 关键转点比例速查</h2>
+    <div class="ref-section">
+      <table>
+        <thead>
+          <tr><th>积分计划</th><th>目标</th><th>比例</th><th>来源</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="card-color" style="background:#10b981"></span>Amex MR</td><td>ANA (NH)</td><td>1 : 0.5</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#10b981"></span>Amex MR</td><td>Cathay (CX)</td><td>1 : 0.8</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a> 2026.3 更新</td></tr>
+          <tr><td><span class="card-color" style="background:#10b981"></span>Amex MR</td><td>Hilton (HH)</td><td>1 : 2</td><td><a href="https://global.americanexpress.com/rewards/transfer" style="color:#60a5fa">[4]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#10b981"></span>Amex MR</td><td>JetBlue (B6)</td><td>1 : 0.8</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#ef4444"></span>Capital One</td><td>JAL (JL)</td><td>1 : 0.75</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a> 2025.9 新增</td></tr>
+          <tr><td><span class="card-color" style="background:#ec4899"></span>Marriott</td><td>全部航司</td><td>3 : 1 (60k→1.25)</td><td><a href="https://www.marriott.com/loyalty/redeem/travel/airlines.mi" style="color:#60a5fa">[8]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#ec4899"></span>Marriott</td><td>United (UA)</td><td>3 : 1.1</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a> 比例略低</td></tr>
+          <tr><td><span class="card-color" style="background:#f59e0b"></span>Bilt</td><td>Marriott (MB)</td><td>1:1 + 5k/20k</td><td><a href="https://www.biltrewards.com/transfer-partners" style="color:#60a5fa">[7]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#6366f1"></span>Citi TYP</td><td>Accor (AL)</td><td>1 : 0.5</td><td><a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></td></tr>
+          <tr><td><span class="card-color" style="background:#f59e0b"></span>Bilt</td><td>Accor (AL)</td><td>1 : 0.67</td><td><a href="https://www.biltrewards.com/transfer-partners" style="color:#60a5fa">[7]</a></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px;color:var(--dim);margin-top:8px">未在此表中列出的均为 <strong>1:1</strong> 比例，来源: <a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a> US Credit Card Guide</p>
+    </div>
+
+    <!-- Update log -->
+    <h2>📝 更新日志</h2>
+    <div class="ref-section">
+      <ul class="update-log">
+        <li><span class="date">2026.3</span> — Amex MR → CX 比例从 1:1 调整为 1:0.8 <a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></li>
+        <li><span class="date">2026.2</span> — Chase UR 新增 Wyndham 为转点伙伴 (1:1)</li>
+        <li><span class="date">2026.1</span> — Citi TYP 移除 AeroMexico 作为转点伙伴 <a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></li>
+        <li><span class="date">2025.10</span> — Chase CSR 改版: Portal 兑换从固定 1.5cpp 改为浮动 Points Boost</li>
+        <li><span class="date">2025.9</span> — Capital One 新增 JL (1:0.75) 和 QR (1:1) 转点伙伴 <a href="https://www.uscreditcardguide.com/wings-of-the-points/" style="color:#60a5fa">[1]</a></li>
+      </ul>
+    </div>
+
+    <footer>
+      by <a href="https://github.com/1suponatime">1suponatime</a> · <a href="index.html">转点二分图</a> · <a href="redemption-value.html">兑换价值分析</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues">🐛 报错 / 提交 Issue</a>
+    </footer>
+  </div>
+</body>
+</html>

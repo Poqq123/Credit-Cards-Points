@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>积分兑换价值分析 — Points Redemption Value</title>
+  <link rel="icon" href="data:,">
+  <meta name="description" content="Interactive credit card points redemption value analysis — find the best transfer partner for your points">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    :root {
+      --bg: #0a0a1a; --surface: rgba(18,18,38,0.9); --border: rgba(255,255,255,0.06);
+      --text: #e0e0e0; --dim: #666;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(167,139,250,0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(16,185,129,0.04) 0%, transparent 50%);
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px; }
+    .nav-link {
+      display: inline-flex; gap: 6px; margin-bottom: 24px; padding: 5px 12px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 8px; color: #888; text-decoration: none; font-size: 11px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: #ccc; }
+
+    header { text-align: center; margin-bottom: 36px; }
+    header h1 {
+      font-size: 24px; font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header p { font-size: 13px; color: var(--dim); margin-top: 4px; }
+
+    /* Section */
+    .section { margin-bottom: 40px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* Portal Table */
+    .portal-table-wrap { overflow-x: auto; }
+    .portal-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      background: var(--surface); border-radius: 12px; overflow: hidden;
+    }
+    .portal-table th, .portal-table td { padding: 12px 14px; text-align: center; }
+    .portal-table thead th {
+      background: rgba(255,255,255,0.03); font-size: 11px; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.5px; color: var(--dim);
+      border-bottom: 1px solid var(--border);
+    }
+    .portal-table thead th:first-child { text-align: left; }
+    .portal-table tbody td { border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .portal-table tbody td:first-child { text-align: left; font-weight: 500; }
+    .portal-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .card-dot-sm { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .cpp-val { font-weight: 600; }
+    .cpp-best { color: #10b981; background: rgba(16,185,129,0.08); padding: 3px 8px; border-radius: 6px; }
+    .cpp-na { color: #444; }
+    .earn-sub { font-size: 10px; color: var(--dim); display: block; margin-top: 2px; }
+
+    /* Destination Picker */
+    .picker-wrap {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+    }
+    .picker-tabs {
+      display: flex; gap: 4px; padding: 3px; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; width: fit-content;
+    }
+    .picker-tab {
+      padding: 7px 18px; border: none; background: none; color: var(--dim);
+      font-family: 'Inter'; font-size: 12px; font-weight: 500; border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .picker-tab:hover { color: #ccc; }
+    .picker-tab.active { background: rgba(255,255,255,0.08); color: #fff; }
+    .dest-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 8px; margin-bottom: 24px;
+    }
+    .dest-btn {
+      padding: 10px 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.02);
+      border-radius: 10px; color: var(--text); font-family: 'Inter'; font-size: 12px;
+      cursor: pointer; transition: all 0.2s; text-align: left;
+    }
+    .dest-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+    .dest-btn.selected { background: rgba(167,139,250,0.12); border-color: #a78bfa; color: #fff; }
+    .dest-btn .code { font-weight: 700; font-size: 14px; margin-right: 6px; }
+    .dest-btn .name { color: var(--dim); font-size: 11px; display: block; margin-top: 2px; }
+
+    /* Result panel */
+    .result-panel {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; min-height: 120px;
+    }
+    .result-empty { text-align: center; color: #444; padding: 40px 0; font-size: 14px; }
+    .result-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .result-sub { font-size: 12px; color: var(--dim); margin-bottom: 20px; }
+    .transfer-cards {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .transfer-card {
+      padding: 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02); position: relative;
+      transition: transform 0.2s;
+    }
+    .transfer-card:hover { transform: translateY(-2px); }
+    .transfer-card.best {
+      border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05);
+    }
+    .transfer-card .badge {
+      position: absolute; top: -8px; right: 12px;
+      padding: 2px 10px; border-radius: 6px; font-size: 10px; font-weight: 700;
+      background: #10b981; color: #000;
+    }
+    .transfer-card .card-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+    .transfer-card .ratio { font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+    .transfer-card .value-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04); }
+    .transfer-card .value-big { font-size: 24px; font-weight: 800; }
+    .transfer-card .value-unit { font-size: 11px; color: var(--dim); }
+    .transfer-card .value-calc { font-size: 11px; color: var(--dim); margin-top: 4px; }
+
+    footer {
+      text-align: center; padding: 28px 0; font-size: 11px; color: #333;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: #555; text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .container { padding: 16px 12px 60px; }
+      header h1 { font-size: 18px; }
+      header p { font-size: 11px; }
+      .section-title { font-size: 14px; }
+      .portal-table { font-size: 11px; }
+      .portal-table th, .portal-table td { padding: 8px 6px; }
+      .picker-wrap { padding: 14px; }
+      .picker-tab { padding: 6px 14px; font-size: 11px; }
+      .dest-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .dest-btn { padding: 8px 10px; font-size: 11px; }
+      .dest-btn .code { font-size: 12px; }
+      .dest-btn .name { font-size: 10px; }
+      .result-panel { padding: 14px; }
+      .result-title { font-size: 15px; }
+      .result-sub { font-size: 11px; }
+      .transfer-cards { grid-template-columns: 1fr; }
+      .transfer-card { padding: 14px; }
+      .transfer-card .card-name { font-size: 13px; }
+      .transfer-card .value-big { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="nav-link">← 返回转点二分图</a>
+
+    <header>
+      <h1>💎 积分兑换价值分析</h1>
+      <p>选择目标航司或酒店 → 查看哪个积分计划转点最划算</p>
+    </header>
+
+    <!-- Section 1: Portal CPP Comparison -->
+    <div class="section">
+      <div class="section-title">📊 Portal 固定兑换值 & 有效回报率</div>
+      <div class="portal-table-wrap" id="portalTableWrap"></div>
+    </div>
+
+    <!-- Section 2: Interactive Picker -->
+    <div class="section">
+      <div class="section-title">🎯 选择目标 — 找出最佳转点路径</div>
+      <div class="picker-wrap">
+        <div class="picker-tabs">
+          <button class="picker-tab active" data-pick="airlines">✈️ 航空公司</button>
+          <button class="picker-tab" data-pick="hotels">🏨 酒店</button>
+        </div>
+        <div id="destGrid" class="dest-grid"></div>
+        <div id="resultPanel" class="result-panel">
+          <div class="result-empty">👆 选择一个航空公司或酒店，查看最佳转点方案</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      by <a href="https://github.com/1suponatime">1suponatime</a> · 2026.3 · <a href="index.html">转点二分图</a> · <a href="references.html">📚 数据来源</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues">🐛 报错</a>
+    </footer>
+  </div>
+
+  <script type="module" src="js/redemption-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>信用卡转点二分图 — Credit Card Transfer Partners</title>
+  <link rel="icon" href="data:,">
+  <meta name="description"
+    content="Interactive bipartite graph of US credit card transfer partners to airlines and hotels">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a1a;
+      color: #e0e0e0;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    /* Title */
+    #title-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 24px;
+      background: linear-gradient(180deg, rgba(10, 10, 26, 0.9) 0%, rgba(10, 10, 26, 0) 100%);
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+
+    #title-bar.faded {
+      opacity: 0.35;
+    }
+
+    #title-bar h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #title-bar p {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    #title-bar a {
+      color: #c4b5fd;
+      text-decoration: none;
+      pointer-events: auto;
+      padding: 2px 8px;
+      background: rgba(167, 139, 250, 0.1);
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    #title-bar a:hover {
+      background: rgba(167, 139, 250, 0.2);
+    }
+
+    /* Mode Toggle */
+    #mode-toggle {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      z-index: 20;
+      display: flex;
+      gap: 2px;
+      padding: 3px;
+      background: rgba(20, 20, 40, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+    }
+
+    .mode-btn {
+      padding: 7px 16px;
+      border: none;
+      background: none;
+      color: #666;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      color: #ccc;
+    }
+
+    .mode-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Legend — inside title bar, flows below text */
+    #legend {
+      display: inline-flex; gap: 10px; padding: 4px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 8px;
+      font-size: 10px; flex-wrap: wrap; margin-top: 6px;
+      pointer-events: auto;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .legend-item.clickable {
+      cursor: pointer;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin: -3px -2px;
+      transition: background 0.2s;
+    }
+
+    .legend-item.clickable:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .legend-item.clickable.active {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Tooltip */
+    #tooltip {
+      position: fixed;
+      display: none;
+      padding: 10px 16px;
+      background: rgba(15, 15, 35, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      font-size: 13px;
+      z-index: 100;
+      max-width: 360px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    #tooltip.locked {
+      pointer-events: auto;
+    }
+
+    #tooltip:not(.locked) {
+      pointer-events: none;
+    }
+
+    #tooltip .tt-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    #tooltip .tt-sub {
+      color: #888;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    #tooltip .tt-partners {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    #tooltip .tt-tag {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    #tooltip .tt-tag:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    #tooltip .tt-src {
+      font-size: 10px;
+      color: #60a5fa;
+      margin-top: 8px;
+      display: block;
+      text-decoration: none;
+    }
+
+    #tooltip .tt-src:hover {
+      text-decoration: underline;
+    }
+
+    /* Info panel — bottom-right */
+    #info-panel {
+      position: fixed;
+      bottom: 12px;
+      right: 16px;
+      padding: 10px 14px;
+      background: rgba(15, 15, 35, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      z-index: 10;
+      font-size: 11px;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    #info-panel:hover {
+      opacity: 1;
+    }
+
+    #info-panel h3 {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #a78bfa;
+    }
+
+    #info-panel .stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    #info-panel .stat-label {
+      color: #888;
+      font-size: 10px;
+    }
+
+    #info-panel .stat-value {
+      font-weight: 500;
+      font-size: 10px;
+    }
+
+    /* Controls — bottom-left */
+    #controls-hint {
+      position: fixed;
+      bottom: 12px;
+      left: 16px;
+      padding: 8px 12px;
+      background: rgba(15, 15, 35, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      z-index: 10;
+      font-size: 10px;
+      color: #555;
+      line-height: 1.5;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    #controls-hint:hover {
+      opacity: 1;
+    }
+
+    #controls-hint kbd {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: 'Inter', sans-serif;
+      font-size: 9px;
+    }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      /* Title bar — compact, links wrap to next line */
+      #title-bar { padding: 6px 10px; }
+      #title-bar h1 { font-size: 13px; }
+      #title-bar p { font-size: 10px; line-height: 2; }
+      #title-bar a { padding: 2px 6px; font-size: 10px; display: inline-block; margin-top: 2px; }
+
+      /* Legend — vertical inside title bar */
+      #legend { flex-direction: column; gap: 3px; padding: 4px 10px; font-size: 10px; margin-top: 4px; }
+      .legend-dot { width: 7px; height: 7px; }
+      .legend-item { gap: 4px; }
+
+      /* Mode toggle — bottom left */
+      #mode-toggle { bottom: 10px; left: 8px; }
+      .mode-btn { padding: 6px 12px; font-size: 11px; }
+
+      /* Hide desktop-only panels */
+      #info-panel { display: none; }
+      #controls-hint { display: none; }
+
+      /* Tooltip — fit screen */
+      #tooltip { max-width: 75vw; font-size: 11px; padding: 8px 10px; }
+      #tooltip .tt-title { font-size: 12px; }
+      #tooltip .tt-tag { font-size: 9px; padding: 2px 5px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="canvas-container"></div>
+
+  <div id="title-bar">
+    <h1>💳 Credit Card Transfer Partners</h1>
+    <p>by <a href="https://github.com/Poqq123" style="color:#a78bfa">Poqq123</a> · 2026.3<br><a href="redemption-value.html">💎 兑换价值</a> · <a href="references.html">📚 数据来源</a> · <a href="https://github.com/1suponatime/credit-card-transfer-graph/issues/new">🐛 报错</a></p>
+    <div id="legend"></div>
+  </div>
+
+  <div id="mode-toggle">
+    <button class="mode-btn active" data-mode="airlines">✈️ 航空公司</button>
+    <button class="mode-btn" data-mode="hotels">🏨 酒店</button>
+  </div>
+
+  <div id="controls-hint">
+    <kbd>悬停</kbd> 高亮 · <kbd>点击</kbd> 锁定 · <kbd>滚轮</kbd> 缩放 · <kbd>拖拽</kbd> 平移
+  </div>
+
+  <div id="info-panel">
+    <h3 id="panel-title">📊 概览</h3>
+    <div class="stat"><span class="stat-label">积分计划</span><span class="stat-value" id="stat-cards">—</span></div>
+    <div class="stat"><span class="stat-label" id="stat-dest-label">目标</span><span class="stat-value"
+        id="stat-dest">—</span></div>
+    <div class="stat"><span class="stat-label">转点关系</span><span class="stat-value" id="stat-edges">—</span></div>
+    <div class="stat"><span class="stat-label" id="stat-group-label">分组</span><span class="stat-value"
+        id="stat-groups">—</span></div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js" } }
+  </script>
+  <script type="module" src="js/graph-app.js"></script>
+</body>
+
+</html>
