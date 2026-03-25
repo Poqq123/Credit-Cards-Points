@@ -1,60 +1,62 @@
-# 💳 信用卡转点二分图
+# Credit Card Transfer Graph
 
-> **在线体验 → [1suponatime.github.io/credit-card-transfer-graph](https://1suponatime.github.io/credit-card-transfer-graph/)**
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-交互式可视化工具，展示美国主流信用卡积分向航空公司和酒店的转点关系。
+> **Live Demo -> [TobeAdded](https://)**
 
-## 📄 页面
+An interactive visualization of transfer relationships between major US credit card rewards programs and airline or hotel loyalty partners.
 
-| 页面 | 说明 |
-|------|------|
-| [转点二分图](https://1suponatime.github.io/credit-card-transfer-graph/) | Three.js 交互式二分图，支持航空/酒店切换、联盟筛选、拖拽缩放 |
-| [兑换价值分析](https://1suponatime.github.io/credit-card-transfer-graph/redemption-value.html) | Portal CPP 对比 + 目标选择器，找出最佳转点路径 |
-| [数据来源](https://1suponatime.github.io/credit-card-transfer-graph/references.html) | 所有转点比例、CPP 估值的引用出处 |
+## Pages
 
-## 🏦 覆盖积分计划
+| Page | Description |
+|------|-------------|
+| [Transfer Graph](https://1suponatime.github.io/credit-card-transfer-graph/) | Interactive Three.js bipartite graph with airline or hotel switching, alliance filters, drag, and zoom |
+| [Redemption Value Analysis](https://1suponatime.github.io/credit-card-transfer-graph/redemption-value.html) | Portal CPP comparison and destination selector to find stronger transfer options |
+| [References](https://1suponatime.github.io/credit-card-transfer-graph/references.html) | Source list for transfer ratios and CPP valuations |
+
+## Rewards Programs Covered
 
 Chase UR · Amex MR · Citi TYP · Capital One · Bilt · Marriott Bonvoy
 
-## ✈️ 覆盖航司 & 🏨 酒店
+## Airlines and Hotels Covered
 
-- **航空**: 27 家（Star Alliance / oneworld / SkyTeam / 独立航司）
-- **酒店**: 7 家（Hyatt / Hilton / IHG / Marriott / Wyndham / Choice / Accor）
+- **Airlines**: 27 programs across Star Alliance, oneworld, SkyTeam, and independent carriers
+- **Hotels**: 7 programs including Hyatt, Hilton, IHG, Marriott, Wyndham, Choice, and Accor
 
-## 📱 特性
+## Features
 
-- 手机触控适配（单指拖拽 + 双指缩放）
-- 深色主题，标签自动缩放
-- 点击联盟/酒店集团筛选高亮
-- 数据更新至 2026.3
+- Mobile touch support with single-finger drag and two-finger zoom
+- Dark theme with responsive label scaling
+- Alliance and hotel-group filters with focused highlighting
+- Data updated through March 2026
 
-## 🚀 本地运行
+## Run Locally
 
 ```bash
-git clone https://github.com/1suponatime/credit-card-transfer-graph.git
-cd credit-card-transfer-graph
+git clone https://github.com/Poqq123/Credit-Cards-Points.git
+cd Credit-Cards-Points
 python3 -m http.server 8080
-# 打开 http://localhost:8080
+# Open http://localhost:8080
 ```
 
-## 🧩 代码结构
+## Project Structure
 
-- `index.html`: 图谱页面壳子 + Three.js importmap
-- `redemption-value.html`: 兑换价值页面壳子
-- `references.html`: 数据来源页
-- `js/data.js`: 所有共享数据源（积分计划、航司、酒店、转点关系、分组）
-- `js/graph-app.js`: 二分图渲染、交互、动画
-- `js/redemption-app.js`: 兑换价值表格与目标选择器逻辑
+- `index.html`: shell for the graph page and Three.js import map
+- `redemption-value.html`: shell for the redemption value page
+- `references.html`: source reference page
+- `js/data.js`: shared data for rewards programs, airline partners, hotel partners, transfer links, and grouping
+- `js/graph-app.js`: graph rendering, interaction, and animation logic
+- `js/redemption-app.js`: redemption table and destination selector logic
 
-## 🤝 贡献
+## Contributing
 
-发现数据有误或想添加新的积分计划？欢迎 [提交 Issue](https://github.com/1suponatime/credit-card-transfer-graph/issues)！
+Found incorrect data or want to add another rewards program? Open an [Issue](https://github.com/Poqq123/Credit-Cards-Points/issues).
 
-项目架构详见 [BLUEPRINT.md](./BLUEPRINT.md)。
+See [BLUEPRINT.md](./BLUEPRINT.md) for project architecture details.
 
-## 📚 数据来源
+## Data Sources
 
-- [US Credit Card Guide — 积分点数之翼](https://www.uscreditcardguide.com/wings-of-the-points/)
-- [The Points Guy — Monthly Valuations](https://thepointsguy.com/guide/monthly-valuations/)
-- [Frequent Miler — Reasonable Redemption Values](https://frequentmiler.com/reasonable-redemption-values/)
-- 各银行官方转点页面（详见[数据来源页](https://1suponatime.github.io/credit-card-transfer-graph/references.html)）
+- [US Credit Card Guide - Wings of the Points](https://www.uscreditcardguide.com/wings-of-the-points/)
+- [The Points Guy - Monthly Valuations](https://thepointsguy.com/guide/monthly-valuations/)
+- [Frequent Miler - Reasonable Redemption Values](https://frequentmiler.com/reasonable-redemption-values/)
+- Official bank transfer-partner pages, summarized in the [References page](https://1suponatime.github.io/credit-card-transfer-graph/references.html)
