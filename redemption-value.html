@@ -99,6 +99,48 @@
     }
     .picker-tab:hover { color: #ccc; }
     .picker-tab.active { background: rgba(255,255,255,0.08); color: #fff; }
+    .picker-controls {
+      display: grid; grid-template-columns: minmax(220px, 1.4fr) repeat(2, minmax(160px, 1fr));
+      gap: 12px; margin-bottom: 10px;
+    }
+    .picker-control {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .picker-control label {
+      font-size: 11px; color: var(--dim); font-weight: 600; letter-spacing: 0.2px;
+    }
+    .picker-input, .picker-select {
+      width: 100%; min-height: 42px; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: rgba(255,255,255,0.03); color: var(--text);
+      font-family: 'Inter', sans-serif; font-size: 12px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .picker-input::placeholder { color: #666; }
+    .picker-input:hover, .picker-select:hover {
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .picker-input:focus-visible, .picker-select:focus-visible,
+    .picker-tab:focus-visible, .dest-btn:focus-visible, .lang-btn:focus-visible, .nav-link:focus-visible {
+      outline: none;
+      border-color: rgba(96,165,250,0.7);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.18);
+    }
+    .picker-summary {
+      display: flex; justify-content: space-between; align-items: center;
+      margin: 10px 0 16px; font-size: 11px; color: var(--dim);
+    }
+    .dest-empty {
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 18px 16px;
+      margin-bottom: 20px;
+      color: #888;
+      font-size: 12px;
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+    }
     .dest-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 8px; margin-bottom: 24px;
@@ -163,6 +205,8 @@
       .portal-table th, .portal-table td { padding: 8px 6px; }
       .picker-wrap { padding: 14px; }
       .picker-tab { padding: 6px 14px; font-size: 11px; }
+      .picker-controls { grid-template-columns: 1fr; gap: 10px; }
+      .picker-summary { margin: 8px 0 14px; }
       .dest-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
       .dest-btn { padding: 8px 10px; font-size: 11px; }
       .dest-btn .code { font-size: 12px; }
@@ -206,6 +250,30 @@
           <button class="picker-tab active" data-pick="airlines">✈️ 航空公司</button>
           <button class="picker-tab" data-pick="hotels">🏨 酒店</button>
         </div>
+        <div class="picker-controls" aria-label="Filter and sort controls">
+          <div class="picker-control">
+            <label for="destSearch" id="dest-search-label">搜索目标</label>
+            <input id="destSearch" class="picker-input" type="search" placeholder="输入代码、名称或分组" autocomplete="off">
+          </div>
+          <div class="picker-control">
+            <label for="destSort" id="dest-sort-label">目标排序</label>
+            <select id="destSort" class="picker-select">
+              <option value="group">按分组</option>
+              <option value="value">按估值</option>
+              <option value="az">按字母</option>
+            </select>
+          </div>
+          <div class="picker-control">
+            <label for="cardSort" id="card-sort-label">结果排序</label>
+            <select id="cardSort" class="picker-select">
+              <option value="value">按价值</option>
+              <option value="fee">按年费</option>
+              <option value="ratio">按比例</option>
+            </select>
+          </div>
+        </div>
+        <div id="destSummary" class="picker-summary">显示 0 / 0 个目标</div>
+        <div id="destEmpty" class="dest-empty" hidden>没有匹配的目标，请换个关键词试试</div>
         <div id="destGrid" class="dest-grid"></div>
         <div id="resultPanel" class="result-panel">
           <div class="result-empty">👆 选择一个航空公司或酒店，查看最佳转点方案</div>

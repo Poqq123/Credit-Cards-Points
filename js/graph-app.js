@@ -15,7 +15,9 @@ import {
   getLanguage,
   onLanguageChange,
   setDocumentMeta,
+  syncLocalizedLinks,
   t,
+  updateUrlParams,
 } from './i18n.js';
 
 const refs = {
@@ -102,6 +104,151 @@ function isMobile() {
   return state.width < 640;
 }
 
+function normalizeMode(mode) {
+  return mode === 'hotels' ? 'hotels' : 'airlines';
+}
+
+function getGraphUrlState() {
+  const params = new URLSearchParams(window.location.search);
+
+  return {
+    mode: normalizeMode(params.get('mode')),
+    group: params.get('group'),
+    node: params.get('node'),
+  };
+}
+
+function syncGraphUrlState() {
+  updateUrlParams({
+    lang: state.language,
+    mode: state.currentMode,
+    group: state.selectedGroup,
+    node: state.lockedNode,
+  });
+}
+
+function setActiveModeButton(mode) {
+  document.querySelectorAll('.mode-btn').forEach((button) => {
+    button.classList.toggle('active', button.dataset.mode === mode);
+  });
+}
+
+const CARD_LOGO_ASSETS = {
+  UR: {
+    src: new URL('../image/logo_chase_headerfooter.svg', import.meta.url).href,
+    width: 42,
+    height: 12,
+  },
+  MR: {
+    src: new URL('../image/dls-logo-bluebox-solid.svg', import.meta.url).href,
+    width: 26,
+    height: 26,
+  },
+  TYP: {
+    src: new URL('../image/citiredesign.svg', import.meta.url).href,
+    width: 30,
+    height: 18,
+    sourceRect: { x: 16.5, y: 28.32, width: 56, height: 32.36 },
+  },
+  C1: {
+    src: new URL('../image/Capital_One_logo.svg.png', import.meta.url).href,
+    width: 34,
+    height: 18,
+  },
+  Bilt: {
+    src: new URL('../image/bilt-rewards.svg', import.meta.url).href,
+    width: 42,
+    height: 14,
+    badge: {
+      fill: 'rgba(255,255,255,0.96)',
+      stroke: 'rgba(255,255,255,0.2)',
+      paddingX: 4,
+      paddingY: 3,
+      radius: 6,
+    },
+  },
+  MB: {
+    src: new URL('../image/marriott.svg', import.meta.url).href,
+    width: 20,
+    height: 20,
+  },
+};
+
+const cardLogoCache = new Map();
+
+function getCardLogoImage(cardId) {
+  const asset = CARD_LOGO_ASSETS[cardId];
+  if (!asset) {
+    return null;
+  }
+
+  if (!cardLogoCache.has(cardId)) {
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = asset.src;
+    cardLogoCache.set(cardId, image);
+  }
+
+  return cardLogoCache.get(cardId);
+}
+
+function drawAssetLogo(ctx, image, asset, x, y, boxWidth, boxHeight) {
+  if (!image?.complete || image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+    return false;
+  }
+
+  const badge = asset.badge ?? null;
+  let targetX = x;
+  let targetY = y;
+  let targetWidth = boxWidth;
+  let targetHeight = boxHeight;
+
+  if (badge) {
+    const paddingX = badge.paddingX ?? 0;
+    const paddingY = badge.paddingY ?? 0;
+    drawRoundedRect(ctx, x, y, boxWidth, boxHeight, badge.radius ?? Math.min(boxWidth, boxHeight) / 2);
+    ctx.fillStyle = badge.fill;
+    ctx.strokeStyle = badge.stroke ?? 'transparent';
+    ctx.lineWidth = 1;
+    ctx.fill();
+    if (badge.stroke) {
+      ctx.stroke();
+    }
+
+    targetX += paddingX;
+    targetY += paddingY;
+    targetWidth -= paddingX * 2;
+    targetHeight -= paddingY * 2;
+  }
+
+  const sourceRect = asset.sourceRect ?? {
+    x: 0,
+    y: 0,
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+  };
+  const sourceAspect = sourceRect.width / sourceRect.height;
+  const boxAspect = targetWidth / targetHeight;
+  const drawWidth = sourceAspect > boxAspect ? targetWidth : targetHeight * sourceAspect;
+  const drawHeight = sourceAspect > boxAspect ? targetWidth / sourceAspect : targetHeight;
+  const drawX = targetX + (targetWidth - drawWidth) / 2;
+  const drawY = targetY + (targetHeight - drawHeight) / 2;
+
+  ctx.drawImage(
+    image,
+    sourceRect.x,
+    sourceRect.y,
+    sourceRect.width,
+    sourceRect.height,
+    drawX,
+    drawY,
+    drawWidth,
+    drawHeight,
+  );
+
+  return true;
+}
+
 function createTextTexture(text, fontSize, color, fontWeight = '500') {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -119,6 +266,210 @@ function createTextTexture(text, fontSize, color, fontWeight = '500') {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
+
+  return { texture, width, height };
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawCardBadge(ctx, card, x, y, size) {
+  const badgePalette = {
+    UR: { fill: '#ffffff', stroke: '#0f6cbd' },
+    MR: { fill: '#0a7cc1', stroke: '#63c5ff' },
+    TYP: { fill: '#ffffff', stroke: '#d1d5db' },
+    C1: { fill: '#ffffff', stroke: '#d1d5db' },
+    Bilt: { fill: '#111111', stroke: '#6b7280' },
+    MB: { fill: '#7a284b', stroke: '#f5d0fe' },
+  };
+  const palette = badgePalette[card.id] ?? { fill: 'rgba(255,255,255,0.08)', stroke: card.color };
+
+  drawRoundedRect(ctx, x, y, size, size, size * 0.28);
+  ctx.fillStyle = palette.fill;
+  ctx.strokeStyle = palette.stroke;
+  ctx.lineWidth = Math.max(1.1, size * 0.075);
+  ctx.fill();
+  ctx.stroke();
+
+  const centerX = x + size / 2;
+  const centerY = y + size / 2;
+
+  switch (card.id) {
+    case 'UR': {
+      ctx.fillStyle = '#117aca';
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      const ringOuter = size * 0.27;
+      const ringInner = size * 0.115;
+      for (let index = 0; index < 4; index += 1) {
+        ctx.rotate(Math.PI / 2);
+        ctx.beginPath();
+        ctx.moveTo(-ringOuter, -ringInner);
+        ctx.lineTo(-ringInner, -ringOuter);
+        ctx.lineTo(ringOuter, -ringInner);
+        ctx.lineTo(ringInner, ringOuter);
+        ctx.lineTo(-ringOuter, ringInner);
+        ctx.closePath();
+        ctx.scale(0.5, 0.5);
+        ctx.fill();
+        ctx.scale(2, 2);
+      }
+      ctx.restore();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(centerX - size * 0.08, centerY - size * 0.08, size * 0.16, size * 0.16);
+      break;
+    }
+    case 'MR': {
+      const innerX = x + size * 0.12;
+      const innerY = y + size * 0.15;
+      const innerW = size * 0.76;
+      const innerH = size * 0.7;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = size * 0.04;
+      drawRoundedRect(ctx, innerX, innerY, innerW, innerH, size * 0.05);
+      ctx.stroke();
+      drawRoundedRect(ctx, innerX + size * 0.05, innerY + size * 0.05, innerW - size * 0.1, innerH - size * 0.1, size * 0.04);
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `800 ${size * 0.14}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AMERICAN', centerX, centerY - size * 0.08);
+      ctx.fillText('EXPRESS', centerX, centerY + size * 0.12);
+      break;
+    }
+    case 'TYP': {
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = size * 0.07;
+      ctx.beginPath();
+      ctx.arc(centerX, y + size * 0.46, size * 0.24, Math.PI * 1.08, Math.PI * 1.92);
+      ctx.stroke();
+      ctx.fillStyle = '#1d4ed8';
+      ctx.font = `700 ${size * 0.24}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('citi', centerX, y + size * 0.6);
+      break;
+    }
+    case 'C1': {
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = size * 0.075;
+      ctx.beginPath();
+      ctx.ellipse(centerX + size * 0.02, y + size * 0.36, size * 0.25, size * 0.11, -0.22, Math.PI * 1.08, Math.PI * 1.93);
+      ctx.stroke();
+      ctx.fillStyle = '#1e3a8a';
+      ctx.font = `700 ${size * 0.16}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Capital', centerX, y + size * 0.56);
+      ctx.font = `700 ${size * 0.18}px Inter, sans-serif`;
+      ctx.fillText('One', centerX, y + size * 0.73);
+      break;
+    }
+    case 'Bilt': {
+      ctx.fillStyle = '#111111';
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = size * 0.07;
+      drawRoundedRect(ctx, x + size * 0.18, y + size * 0.22, size * 0.64, size * 0.56, size * 0.14);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${size * 0.24}px Georgia, "Times New Roman", serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('BILT', centerX, centerY + size * 0.01);
+      break;
+    }
+    case 'MB': {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${size * 0.44}px Georgia, "Times New Roman", serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('M', centerX, centerY + size * 0.06);
+      break;
+    }
+    default: {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${size * 0.3}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(card.shortName.slice(0, 2).toUpperCase(), centerX, centerY);
+    }
+  }
+}
+
+function createCardLabelTexture(card, fontSize, mobile = false) {
+  const text = card.shortName;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  const logoAsset = CARD_LOGO_ASSETS[card.id] ?? null;
+  const badgeSize = mobile ? 20 : 24;
+  const logoWidth = logoAsset ? (mobile ? Math.round(logoAsset.width * 0.85) : logoAsset.width) : badgeSize;
+  const logoHeight = logoAsset ? (mobile ? Math.round(logoAsset.height * 0.85) : logoAsset.height) : badgeSize;
+  const gap = mobile ? 6 : 9;
+  const horizontalPadding = mobile ? 8 : 10;
+  const verticalPadding = mobile ? 4 : 5;
+
+  ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+  const textWidth = ctx.measureText(text).width;
+  const mediaWidth = logoAsset ? logoWidth : badgeSize;
+  const mediaHeight = logoAsset ? logoHeight : badgeSize;
+  const width = horizontalPadding * 2 + mediaWidth + gap + textWidth;
+  const height = Math.max(mediaHeight, fontSize * 1.35, badgeSize) + verticalPadding * 2;
+
+  canvas.width = width * 2;
+  canvas.height = height * 2;
+  ctx.scale(2, 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const drawLabel = () => {
+    ctx.clearRect(0, 0, width, height);
+    drawRoundedRect(ctx, 0.5, 0.5, width - 1, height - 1, height / 2);
+    ctx.fillStyle = 'rgba(8, 12, 28, 0.9)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.fill();
+    ctx.stroke();
+
+    if (logoAsset) {
+      const logoImage = getCardLogoImage(card.id);
+      const logoX = horizontalPadding;
+      const logoY = (height - logoHeight) / 2;
+
+      if (!drawAssetLogo(ctx, logoImage, logoAsset, logoX, logoY, logoWidth, logoHeight)) {
+        drawCardBadge(ctx, card, horizontalPadding, (height - badgeSize) / 2, badgeSize);
+      }
+    } else {
+      drawCardBadge(ctx, card, horizontalPadding, (height - badgeSize) / 2, badgeSize);
+    }
+
+    ctx.font = `700 ${fontSize}px Inter, sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText(text, horizontalPadding + mediaWidth + gap, height / 2);
+    texture.needsUpdate = true;
+  };
+
+  const logoImage = logoAsset ? getCardLogoImage(card.id) : null;
+  if (logoImage && !logoImage.complete) {
+    logoImage.addEventListener('load', drawLabel, { once: true });
+    logoImage.addEventListener('error', drawLabel, { once: true });
+  }
+
+  drawLabel();
 
   return { texture, width, height };
 }
@@ -238,6 +589,10 @@ function updateStaticCopy() {
 
   refs.pageTitle.textContent = t('graphHeaderTitle');
   refs.pageSubtitle.innerHTML = t('graphHeaderSubtitle');
+  syncLocalizedLinks(refs.titleBar, {
+    'redemption-value.html': {},
+    'references.html': {},
+  });
   refs.controlsHint.innerHTML = t('controlsHint');
   refs.panelTitle.textContent = t('overviewTitle');
   refs.statCardsLabel.textContent = t('cardPrograms');
@@ -318,7 +673,7 @@ function buildGraph(mode) {
     nodeGroup.add(glow);
     state.glowMeshes[card.id] = glow;
 
-    const { texture, width, height } = createTextTexture(card.shortName, cardFontSize, '#ffffff', '700');
+    const { texture, width, height } = createCardLabelTexture(card, cardFontSize, mobile);
     const sprite = new THREE.Sprite(
       new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }),
     );
@@ -483,7 +838,7 @@ function buildGraph(mode) {
     refs.legend.innerHTML += `<div class="legend-item clickable" data-group="${name}"><div class="legend-dot" style="background:${info.color}"></div>${getLocalizedText(info.label, state.language)}</div>`;
   });
 
-  document.querySelectorAll('.legend-item.clickable').forEach((element) => {
+  refs.legend.querySelectorAll('.legend-item.clickable').forEach((element) => {
     element.addEventListener('click', () => {
       const group = element.dataset.group;
       if (state.selectedGroup === group) {
@@ -497,8 +852,12 @@ function buildGraph(mode) {
       resetLegendSelection();
       element.classList.add('active');
       highlightGroup(group);
+      syncGraphUrlState();
     });
   });
+
+  setActiveModeButton(mode);
+  applyUrlSelection();
 }
 
 function getConnectedEdges(nodeId) {
@@ -600,6 +959,53 @@ function clearAllSelection() {
   resetLegendSelection();
   resetHighlight();
   refs.tooltip.style.display = 'none';
+  syncGraphUrlState();
+}
+
+function getClientPositionForNode(nodeId) {
+  const position = state.nodePositions[nodeId];
+  if (!position) {
+    return { x: state.width / 2, y: state.height / 2 };
+  }
+
+  const projected = new THREE.Vector3(position.x, position.y, 0).project(camera);
+  return {
+    x: ((projected.x + 1) / 2) * state.width,
+    y: ((-projected.y + 1) / 2) * state.height,
+  };
+}
+
+function applyUrlSelection() {
+  const { group, node } = getGraphUrlState();
+
+  if (node && state.nodeMeshes[node]) {
+    state.lockedNode = node;
+    state.selectedGroup = null;
+    resetLegendSelection();
+    highlightNode(node);
+    const point = getClientPositionForNode(node);
+    showTooltip(node, point.x, point.y);
+    syncGraphUrlState();
+    return;
+  }
+
+  if (group && state.currentGroups[group]) {
+    state.selectedGroup = group;
+    state.lockedNode = null;
+    resetLegendSelection();
+    [...refs.legend.querySelectorAll('.legend-item.clickable')].forEach((element) => {
+      element.classList.toggle('active', element.dataset.group === group);
+    });
+    highlightGroup(group);
+    syncGraphUrlState();
+    return;
+  }
+
+  state.selectedGroup = null;
+  state.lockedNode = null;
+  resetHighlight();
+  refs.tooltip.style.display = 'none';
+  syncGraphUrlState();
 }
 
 function showTooltip(nodeId, clientX, clientY) {
@@ -781,6 +1187,7 @@ renderer.domElement.addEventListener('click', (event) => {
       showTooltip(state.hoveredNode, event.clientX, event.clientY);
     }
 
+    syncGraphUrlState();
     return;
   }
 
@@ -823,6 +1230,7 @@ renderer.domElement.addEventListener(
           showTooltip(foundId, touch.clientX, touch.clientY);
         }
 
+        syncGraphUrlState();
         isTouchPanning = false;
       } else if (state.lockedNode || state.selectedGroup) {
         clearAllSelection();
@@ -878,14 +1286,10 @@ document.querySelectorAll('.mode-btn').forEach((button) => {
       return;
     }
 
-    document.querySelectorAll('.mode-btn').forEach((candidate) => {
-      candidate.classList.remove('active');
-    });
-    button.classList.add('active');
-
     state.panOffset = { x: 0, y: 0 };
     state.zoomLevel = 1;
     updateCamera();
+    updateUrlParams({ mode: button.dataset.mode, group: null, node: null, lang: state.language });
     buildGraph(button.dataset.mode);
   });
 });
@@ -963,7 +1367,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-buildGraph('airlines');
+buildGraph(getGraphUrlState().mode);
 updateCamera();
 animate();
 

@@ -1,9 +1,12 @@
 import {
   bindLanguageToggle,
+  buildPageUrl,
   getLanguage,
   onLanguageChange,
   setDocumentMeta,
+  syncLocalizedLinks,
   t,
+  updateUrlParams,
 } from './i18n.js';
 
 const root = document.getElementById('references-app');
@@ -361,6 +364,8 @@ function render(language) {
     description: t('referencesMetaDescription'),
   });
 
+  updateUrlParams({ lang: language });
+  backLink.setAttribute('href', buildPageUrl('index.html'));
   backLink.textContent = t('referencesBackToGraph');
 
   root.innerHTML = `
@@ -386,6 +391,8 @@ function render(language) {
 
     <footer>${text(copy.footer, language)}</footer>
   `;
+
+  syncLocalizedLinks(root);
 }
 
 bindLanguageToggle();
