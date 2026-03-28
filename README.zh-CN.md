@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-> **在线体验 -> [TobeAdded](https://)**
+> **在线体验 -> [credit-cards-points.vercel.app](https://credit-cards-points.vercel.app/)**
 
 这是一个交互式可视化工具，用来展示美国主流信用卡积分计划与航司、酒店常旅客计划之间的转点关系。
 
@@ -10,9 +10,9 @@
 
 | 页面 | 说明 |
 |------|------|
-| [转点二分图](https://1suponatime.github.io/credit-card-transfer-graph/) | 基于 Three.js 的交互式二分图，支持航空与酒店切换、联盟筛选、拖拽和缩放 |
-| [兑换价值分析](https://1suponatime.github.io/credit-card-transfer-graph/redemption-value.html) | 提供 Portal CPP 对比和目标选择器，帮助寻找更优转点路径 |
-| [数据来源](https://1suponatime.github.io/credit-card-transfer-graph/references.html) | 汇总所有转点比例和 CPP 估值的引用出处 |
+| [转点二分图](https://credit-cards-points.vercel.app/) | 基于 Three.js 的交互式二分图，支持航空与酒店切换、联盟筛选、拖拽和缩放 |
+| [兑换价值分析](https://credit-cards-points.vercel.app/redemption-value.html) | 提供 Portal CPP 对比和目标选择器，帮助寻找更优转点路径 |
+| [数据来源](https://credit-cards-points.vercel.app/references.html) | 汇总所有转点比例和 CPP 估值的引用出处 |
 
 ## 覆盖的积分计划
 
@@ -52,11 +52,11 @@ python3 -m http.server 8080
 
 如果你发现数据有误，或者想补充新的积分计划，欢迎提交 [Issue](https://github.com/Poqq123/Credit-Cards-Points/issues)。
 
-项目架构说明请见 [BLUEPRINT.md](./BLUEPRINT.md)。
+项目架构说明请见 [BLUEPRINT.zh-CN.md](./BLUEPRINT.zh-CN.md)。
 
 ## 数据来源
 
 - [US Credit Card Guide - 积分点数之翼](https://www.uscreditcardguide.com/wings-of-the-points/)
 - [The Points Guy - Monthly Valuations](https://thepointsguy.com/guide/monthly-valuations/)
 - [Frequent Miler - Reasonable Redemption Values](https://frequentmiler.com/reasonable-redemption-values/)
-- 各银行官方转点页面，整理见[数据来源页](https://1suponatime.github.io/credit-card-transfer-graph/references.html)
+- 各银行官方转点页面，整理见[数据来源页](https://credit-cards-points.vercel.app/references.html)

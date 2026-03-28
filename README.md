@@ -2,7 +2,7 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-> **Live Demo -> [TobeAdded](https://)**
+> **Live Demo -> [credit-cards-points.vercel.app](https://credit-cards-points.vercel.app/)**
 
 An interactive visualization of transfer relationships between major US credit card rewards programs and airline or hotel loyalty partners.
 
@@ -10,9 +10,9 @@ An interactive visualization of transfer relationships between major US credit c
 
 | Page | Description |
 |------|-------------|
-| [Transfer Graph](https://1suponatime.github.io/credit-card-transfer-graph/) | Interactive Three.js bipartite graph with airline or hotel switching, alliance filters, drag, and zoom |
-| [Redemption Value Analysis](https://1suponatime.github.io/credit-card-transfer-graph/redemption-value.html) | Portal CPP comparison and destination selector to find stronger transfer options |
-| [References](https://1suponatime.github.io/credit-card-transfer-graph/references.html) | Source list for transfer ratios and CPP valuations |
+| [Transfer Graph](https://credit-cards-points.vercel.app/) | Interactive Three.js bipartite graph with airline or hotel switching, alliance filters, drag, and zoom |
+| [Redemption Value Analysis](https://credit-cards-points.vercel.app/redemption-value.html) | Portal CPP comparison and destination selector to find stronger transfer options |
+| [References](https://credit-cards-points.vercel.app/references.html) | Source list for transfer ratios and CPP valuations |
 
 ## Rewards Programs Covered
 
@@ -59,4 +59,4 @@ See [BLUEPRINT.md](./BLUEPRINT.md) for project architecture details.
 - [US Credit Card Guide - Wings of the Points](https://www.uscreditcardguide.com/wings-of-the-points/)
 - [The Points Guy - Monthly Valuations](https://thepointsguy.com/guide/monthly-valuations/)
 - [Frequent Miler - Reasonable Redemption Values](https://frequentmiler.com/reasonable-redemption-values/)
-- Official bank transfer-partner pages, summarized in the [References page](https://1suponatime.github.io/credit-card-transfer-graph/references.html)
+- Official bank transfer-partner pages, summarized in the [References page](https://credit-cards-points.vercel.app/references.html)
